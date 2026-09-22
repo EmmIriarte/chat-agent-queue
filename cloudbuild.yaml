@@ -1,0 +1,38 @@
+steps:
+  # Build the Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-f', 'Dockerfile.gcp', '-t', 'gcr.io/$PROJECT_ID/chat-agent-queue', '.']
+  
+  # Push the image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/chat-agent-queue']
+  
+  # Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'chat-agent-queue'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/chat-agent-queue'
+      - '--region'
+      - 'us-central1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--port'
+      - '8000'
+      - '--memory'
+      - '4Gi'
+      - '--cpu'
+      - '2'
+      - '--max-instances'
+      - '10'
+      - '--timeout'
+      - '3600'
+      - '--set-env-vars'
+      - 'ENVIRONMENT=production,SUPABASE_URL=${_SUPABASE_URL},SUPABASE_KEY=${_SUPABASE_KEY},SUPABASE_SERVICE_ROLE_KEY=${_SUPABASE_SERVICE_ROLE_KEY},UNIPILE_API_DNS=${_UNIPILE_API_DNS},UNIPILE_API_KEY=${_UNIPILE_API_KEY},OPENAI_API_KEY=${_OPENAI_API_KEY},OPENAI_MODEL=${_OPENAI_MODEL},DEFAULT_MIN_DELAY_MINUTES=${_DEFAULT_MIN_DELAY_MINUTES},DEFAULT_MAX_DELAY_MINUTES=${_DEFAULT_MAX_DELAY_MINUTES},MAX_RETRY_ATTEMPTS=${_MAX_RETRY_ATTEMPTS},LOG_LEVEL=${_LOG_LEVEL}'
+
+images:
+  - 'gcr.io/$PROJECT_ID/chat-agent-queue'

@@ -1,0 +1,13 @@
+fastapi
+uvicorn[standard]
+pydantic>=2.0
+pydantic-settings
+python-dotenv
+supabase
+httpx
+requests
+apscheduler
+asyncpg
+psycopg2-binary
+dateparser
+pytz
